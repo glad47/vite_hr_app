@@ -1,0 +1,156 @@
+{
+  "pages": [{
+    "path": "pages/login",
+    "style": {
+      "navigationBarTitleText": "登录"
+    }
+  }, {
+    "path": "pages/register",
+    "style": {
+      "navigationBarTitleText": "注册"
+    }
+  }, {
+  "path": "pages/attendence/detail",
+  "style": {
+    "navigationBarTitleText": "شهادة الحضور",
+    "navigationBarBackgroundColor": "#76c4cc",
+    "navigationBarTextStyle": "white",
+    "enablePullDownRefresh": false
+  }
+},
+{
+    "path": "pages/index",
+    "style": {
+      "navigationBarTitleText": "若依移动端框架",
+      "navigationStyle": "custom"
+    }
+  }, {
+    "path": "pages/work/index",
+    "style": {
+      "navigationBarTitleText": "العمليات"
+    }
+  }, {
+    "path": "pages/mine/index",
+    "style": {
+      "navigationBarTitleText": "صفحتي"
+    }
+  }, {
+    "path": "pages/mine/avatar/index",
+    "style": {
+      "navigationBarTitleText": "تعديل الصورة الشخصية"
+    }
+  }, {
+    "path": "pages/mine/info/index",
+    "style": {
+      "navigationBarTitleText": "معلوماتي"
+    }
+  }, {
+    "path": "pages/mine/info/edit",
+    "style": {
+      "navigationBarTitleText": "编辑资料"
+    }
+  }, {
+    "path": "pages/mine/pwd/index",
+    "style": {
+      "navigationBarTitleText": "تعديل كلمة المرور"
+    }
+  }, {
+    "path": "pages/mine/setting/index",
+    "style": {
+      "navigationBarTitleText": "الاعدادات"
+    }
+  }, {
+    "path": "pages/mine/help/index",
+    "style": {
+      "navigationBarTitleText": "常见问题"
+    }
+  }, {
+    "path": "pages/mine/about/index",
+    "style": {
+      "navigationBarTitleText": "关于我们"
+    }
+  }, {
+    "path": "pages/common/webview/index",
+    "style": {
+      "navigationBarTitleText": "浏览网页"
+    }
+  }, {
+    "path": "pages/common/textview/index",
+    "style": {
+      "navigationBarTitleText": "浏览文本"
+    }
+  },
+  {
+	"path": "pages/operations/addition",
+	"style": {
+	  "navigationBarTitleText": "الإضافات",
+	  "enablePullDownRefresh": true
+	}
+  },
+  {
+  	"path": "pages/operations/request",
+  	"style": {
+  	  "navigationBarTitleText": "الاستذان",
+  	  "enablePullDownRefresh": true
+  	}
+  },
+  {
+  	"path": "pages/operations/change_punch",
+  	"style": {
+  	  "navigationBarTitleText": "تغير البصمة",
+  	  "enablePullDownRefresh": true
+  	}
+  },
+  {
+  	"path": "pages/operations/leave",
+  	"style": {
+  	  "navigationBarTitleText": "الاجازات",
+  	  "enablePullDownRefresh": true
+  	}
+  },
+  {
+  	"path": "pages/operations/dedection",
+  	"style": {
+  	  "navigationBarTitleText": "الخصومات",
+  	  "enablePullDownRefresh": true
+  	}
+  },
+  {
+  	"path": "pages/operations/deficit",
+  	"style": {
+  	  "navigationBarTitleText": "العجوزات",
+  	  "enablePullDownRefresh": true
+  	}
+  }
+  
+  
+  ],
+  "tabBar": {
+    "color": "#000000",
+    "selectedColor": "#000000",
+    "borderStyle": "white",
+    "backgroundColor": "#ffffff",
+    "list": [{
+        "pagePath": "pages/index",
+        "iconPath": "static/images/tabbar/home.png",
+        "selectedIconPath": "static/images/tabbar/home_.png",
+        "text": "首页"
+      }, {
+        "pagePath": "pages/work/index",
+        "iconPath": "static/images/tabbar/work.png",
+        "selectedIconPath": "static/images/tabbar/work_.png",
+        "text": "工作台"
+      }, {
+        "pagePath": "pages/mine/index",
+        "iconPath": "static/images/tabbar/mine.png",
+        "selectedIconPath": "static/images/tabbar/mine_.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "RuoYi",
+    "navigationBarBackgroundColor": "#FFFFFF"
+  }
+}
