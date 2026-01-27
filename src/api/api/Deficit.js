@@ -71,3 +71,29 @@ export function countPendingDeficits(supervisorId) {
     method: 'get'
   })
 }
+
+/**
+ * الموافقة على عجز
+ * Approve a deficit
+ * @param {Long} id - معرف العجز
+ */
+export function approveDeficit(id) {
+  return request({
+    url: '/api/Deficit/approve/' + id,
+    method: 'put'
+  })
+}
+
+/**
+ * رفض عجز
+ * Reject a deficit
+ * @param {Long} id - معرف العجز
+ * @param {String} reason - سبب الرفض (optional)
+ */
+export function rejectDeficit(id, reason) {
+  return request({
+    url: '/api/Deficit/reject/' + id,
+    method: 'put',
+    data: { reason }
+  })
+}

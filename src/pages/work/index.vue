@@ -150,7 +150,7 @@ export default {
   },
   computed: {
     userInfo() {
-      return this.$store.state.user.hrUser
+      return this.$store?.state?.user?.hrUser || null
     },
     isSupervisor() {
       if (!this.userInfo) return false

@@ -3,8 +3,15 @@ import constant from './constant'
 // 存储变量名
 let storageKey = 'storage_data'
 
-// 存储节点变量名
-let storageNodeKeys = [constant.avatar, constant.id, constant.name, constant.roles, constant.permissions]
+// 存储节点变量名 - include hrUser
+let storageNodeKeys = [
+  constant.avatar, 
+  constant.id, 
+  constant.name, 
+  constant.roles, 
+  constant.permissions,
+  constant.hrUser
+]
 
 const storage = {
   set: function(key, value) {

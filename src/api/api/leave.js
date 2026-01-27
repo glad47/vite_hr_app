@@ -71,3 +71,29 @@ export function countPendingLeaves(supervisorId) {
     method: 'get'
   })
 }
+
+/**
+ * الموافقة على إجازة
+ * Approve a leave request
+ * @param {Long} id - معرف الإجازة
+ */
+export function approveLeave(id) {
+  return request({
+    url: '/api/leave/approve/' + id,
+    method: 'put'
+  })
+}
+
+/**
+ * رفض إجازة
+ * Reject a leave request
+ * @param {Long} id - معرف الإجازة
+ * @param {String} reason - سبب الرفض (optional)
+ */
+export function rejectLeave(id, reason) {
+  return request({
+    url: '/api/leave/reject/' + id,
+    method: 'put',
+    data: { reason }
+  })
+}

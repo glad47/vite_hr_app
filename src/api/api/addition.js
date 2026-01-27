@@ -73,4 +73,28 @@ export function countPendingAdditions(supervisorId) {
   })
 }
 
+/**
+ * الموافقة على إضافة
+ * Approve an addition
+ * @param {Long} id - معرف الإضافة
+ */
+export function approveAddition(id) {
+  return request({
+    url: '/api/addition/approve/' + id,
+    method: 'put'
+  })
+}
 
+/**
+ * رفض إضافة
+ * Reject an addition
+ * @param {Long} id - معرف الإضافة
+ * @param {String} reason - سبب الرفض (optional)
+ */
+export function rejectAddition(id, reason) {
+  return request({
+    url: '/api/addition/reject/' + id,
+    method: 'put',
+    data: { reason }
+  })
+}

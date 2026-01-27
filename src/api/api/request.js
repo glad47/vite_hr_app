@@ -71,3 +71,29 @@ export function countPendingRequests(supervisorId) {
     method: 'get'
   })
 }
+
+/**
+ * الموافقة على استئذان
+ * Approve a request
+ * @param {Long} id - معرف الاستئذان
+ */
+export function approveRequest(id) {
+  return request({
+    url: '/api/request/approve/' + id,
+    method: 'put'
+  })
+}
+
+/**
+ * رفض استئذان
+ * Reject a request
+ * @param {Long} id - معرف الاستئذان
+ * @param {String} reason - سبب الرفض (optional)
+ */
+export function rejectRequest(id, reason) {
+  return request({
+    url: '/api/request/reject/' + id,
+    method: 'put',
+    data: { reason }
+  })
+}

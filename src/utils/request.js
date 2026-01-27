@@ -1,13 +1,39 @@
 import config from '@/config'
-import { getToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
+import storage from '@/utils/storage'
 import errorCode from '@/utils/errorCode'
-import { toast, showConfirm, tansParams } from '@/utils/common'
+import { toast, tansParams } from '@/utils/common'
 
-let timeout = 10000
+let timeout = 30000
 const baseUrl = config.baseUrl
 
-console.log("**********************")
-console.log(baseUrl)
+// Flag to prevent multiple logout redirects
+let isLoggingOut = false
+
+console.log("=== HR App Config ===")
+console.log("Environment:", config.env)
+console.log("Base URL:", baseUrl || "(using nginx proxy)")
+
+/**
+ * Auto logout - clear all data and redirect to login
+ */
+const autoLogout = () => {
+  if (isLoggingOut) return
+  isLoggingOut = true
+  
+  // Clear token and storage
+  removeToken()
+  storage.clean()
+  
+  // Show message
+  toast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى')
+  
+  // Redirect to login after short delay
+  setTimeout(() => {
+    isLoggingOut = false
+    uni.reLaunch({ url: '/pages/login' })
+  }, 1500)
+}
 
 const request = (options) => {
   // 是否需要设置 token
@@ -36,12 +62,9 @@ const request = (options) => {
         const msg = errorCode[code] || res.data.msg || errorCode['default']
         
         if (code === 401) {
-          showConfirm('登录状态已过期，您可以继续留在该页面，或者重新登录?').then(confirm => {
-            if (confirm) {
-              uni.reLaunch({ url: '/pages/login' })
-            }
-          })
-          reject('无效的会话，或者会话已过期，请重新登录。')
+          // Token expired - auto logout
+          autoLogout()
+          reject('انتهت صلاحية الجلسة')
         } else if (code === 500) {
           toast(msg)
           reject('500')
@@ -53,11 +76,11 @@ const request = (options) => {
         }
       },
       fail: (error) => {
-        let message = error.errMsg || '后端接口连接异常'
+        let message = error.errMsg || 'خطأ في الاتصال بالخادم'
         if (message.includes('Network Error') || message.includes('request:fail')) {
-          message = '后端接口连接异常'
+          message = 'خطأ في الاتصال بالخادم'
         } else if (message.includes('timeout')) {
-          message = '系统接口请求超时'
+          message = 'انتهت مهلة الطلب'
         }
         toast(message)
         reject(error)

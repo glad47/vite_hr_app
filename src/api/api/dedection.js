@@ -71,3 +71,29 @@ export function countPendingDedections(supervisorId) {
     method: 'get'
   })
 }
+
+/**
+ * الموافقة على خصم
+ * Approve a deduction
+ * @param {Long} id - معرف الخصم
+ */
+export function approveDedection(id) {
+  return request({
+    url: '/api/dedection/approve/' + id,
+    method: 'put'
+  })
+}
+
+/**
+ * رفض خصم
+ * Reject a deduction
+ * @param {Long} id - معرف الخصم
+ * @param {String} reason - سبب الرفض (optional)
+ */
+export function rejectDedection(id, reason) {
+  return request({
+    url: '/api/dedection/reject/' + id,
+    method: 'put',
+    data: { reason }
+  })
+}

@@ -1,11 +1,18 @@
 // 应用全局配置
 export default {
-  // baseUrl: 'https://vue.ruoyi.vip/prod-api',
-  baseUrl: 'http://192.168.0.125:8080',
+  // Base URL from environment
+  // Development: http://192.168.0.125:8080
+  // Production: '' (nginx proxy)
+  baseUrl:  'http://95.111.234.95:8080',
+  
+  // Current environment
+  // env: import.meta.env.VITE_APP_ENV || 'production',
+  env : "development",
+  
   // 应用信息
   appInfo: {
     // 应用名称
-    name: "ruoyi-app",
+    name:  "HR App",
     // 应用版本
     version: "1.2.0",
     // 应用logo

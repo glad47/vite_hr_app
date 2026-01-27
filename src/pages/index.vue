@@ -235,7 +235,7 @@ export default {
       leaveOptions: [],
       requestOptions: [],
       queryParams: {
-        id: this.userName,
+        id: '',
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
@@ -244,18 +244,53 @@ export default {
     };
   },
   computed: {
+    // Get the HR employee ID (not system username)
+    hrUser() {
+      return this.$store?.state?.user?.hrUser || null;
+    },
+    empId() {
+      return this.hrUser?.id || '';
+    },
+    empName() {
+      return this.hrUser?.name || '';
+    },
+    // Keep userName for backward compatibility (system username)
     userName() {
-      return this.$store.state.user.name;
+      return this.$store?.state?.user?.name || '';
     },
   },
-  created() {
-    this.getEmployeeData();
-    this.getLeaveOptions();
-    this.getRequestOptions();
+  // Use onShow instead of created - fires after navigation completes
+  onShow() {
+    console.log('Dashboard onShow - hrUser:', this.hrUser);
+    console.log('Dashboard onShow - empId:', this.empId);
+    this.loadData();
+  },
+  // Watch for empId changes (when store gets populated)
+  watch: {
+    empId: {
+      handler(newVal) {
+        console.log('empId changed to:', newVal);
+        if (newVal) {
+          this.loadData();
+        }
+      },
+      immediate: false
+    }
   },
   methods: {
+    loadData() {
+      if (!this.empId) {
+        console.warn('No employee ID found in store');
+        return;
+      }
+      this.queryParams.id = this.empId;
+      this.getEmployeeData();
+      this.getLeaveOptions();
+      this.getRequestOptions();
+    },
     getEmployeeData() {
-      this.queryParams.id = this.userName;
+      this.queryParams.id = this.empId;
+      console.log('Fetching salary data for empId:', this.empId, 'params:', this.queryParams);
       listSalary(this.queryParams).then(res => {
         this.empData = res.rows?.[0] || null;
         
@@ -290,7 +325,7 @@ export default {
       });
     },
     getLeaveOptions() {
-      listLeave({ empId: this.userName }).then(res => {
+      listLeave({ empId: this.empId }).then(res => {
         this.leaveOptions = res.rows || [];
       }).catch(err => {
         console.error('Error fetching leaves:', err);
@@ -298,7 +333,7 @@ export default {
       });
     },
     getRequestOptions() {
-      listRequest({ empId: this.userName }).then(res => {
+      listRequest({ empId: this.empId }).then(res => {
         this.requestOptions = res.rows || [];
       }).catch(err => {
         console.error('Error fetching requests:', err);
