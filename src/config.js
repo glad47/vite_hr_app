@@ -3,7 +3,7 @@ export default {
   // Base URL from environment
   // Development: http://95.111.234.95:8080
   // Production: '' (nginx proxy)
-  baseUrl:  'http://localhost:8080',
+  baseUrl:  'http://95.111.234.95:8080',
   
   // Current environment
   // env: import.meta.env.VITE_APP_ENV || 'production',
