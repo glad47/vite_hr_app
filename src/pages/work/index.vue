@@ -92,6 +92,55 @@
         </uni-grid-item>
 
       </uni-grid>
+
+
+      <uni-grid :column="3" :showBorder="false" :square="false" @change="navigateToSupervisor">
+
+         <!-- Approval -->
+        <uni-grid-item :index="0">
+          <view class="grid-item-box">
+            <view class="icon-wrapper icon-orange">
+              <uni-icons type="hand-thumbsup-filled" size="32" color="#ea580c"></uni-icons>
+            </view>
+            <text class="operation-text">المعاملات</text>
+          </view>
+        </uni-grid-item>
+
+        <!-- Employees -->
+        <uni-grid-item :index="1">
+          <view class="grid-item-box">
+            <view class="icon-wrapper icon-purple">
+              <uni-icons type="paperplane-filled" size="32" color="#9333ea"></uni-icons>
+            </view>
+            <text class="operation-text">المرؤوسين</text>
+          </view>
+        </uni-grid-item>
+
+        <!-- العجوزات - Deficit -->
+        <uni-grid-item :index="2">
+          <view class="grid-item-box">
+            <view class="icon-wrapper icon-rose">
+              <uni-icons type="flag-filled" size="32" color="#e11d48"></uni-icons>
+            </view>
+            <text class="operation-text">الشفتات</text>
+          </view>
+        </uni-grid-item>
+
+        <!-- تسجيل الانصراف - Punch Out -->
+        <uni-grid-item :index="3">
+          <view class="grid-item-box">
+            <view class="icon-wrapper icon-green">
+              <uni-icons type="camera-filled" size="32" color="#16a34a"></uni-icons>
+            </view>
+            <text class="operation-text">تسجيل الانصراف</text>
+          </view>
+        </uni-grid-item>
+
+
+      </uni-grid>
+
+
+
     </view>
 
     <!-- إحصائيات سريعة - Quick Stats -->
@@ -145,6 +194,12 @@ export default {
         { name: 'punch', label: 'تغيير البصمة', route: '/pages/operations/change_punch' },
         { name: 'request', label: 'الاستئذان', route: '/pages/operations/request' },
         { name: 'deficit', label: 'العجوزات', route: '/pages/operations/deficit' }
+      ],
+      supervisor: [
+        { name: 'approval', label: 'المعاملات', route: '/pages/supervisor/approval' },
+        { name: 'employees', label: 'المرؤوسين', route: '/pages/supervisor/employees' },
+        { name: 'shifts', label: 'الشفتات', route: '/pages/supervisor/shifts' },
+        { name: 'punchout', label: 'تسجيل الانصراف', route: '/pages/supervisor/punchout' }
       ]
     }
   },
@@ -180,6 +235,22 @@ export default {
         fail: (err) => {
           console.error('Navigation failed:', err)
           this.$modal.showToast(`جاري تطوير صفحة ${operation.label}`)
+        }
+      })
+    },
+
+    navigateToSupervisor(e) {
+      const index = e.detail.index
+      const supervisor = this.supervisor[index]
+      
+      console.log('Navigate to:', supervisor.name)
+      
+      // Navigate to the operation page
+      uni.navigateTo({
+        url: supervisor.route,
+        fail: (err) => {
+          console.error('Navigation failed:', err)
+          this.$modal.showToast(`جاري تطوير صفحة ${supervisor.label}`)
         }
       })
     },

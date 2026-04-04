@@ -18,7 +18,8 @@ export const useUserStore = defineStore('user', {
     avatar: storage.get(constant.avatar),
     roles: storage.get(constant.roles) || [],
     permissions: storage.get(constant.permissions) || [],
-    hrUser: storage.get(constant.hrUser)
+    hrUser: storage.get(constant.hrUser),
+    typeUser: storage.get('typeUser') || 'normal'
   }),
 
   getters: {
@@ -28,7 +29,8 @@ export const useUserStore = defineStore('user', {
     getName: (state) => state.name,
     getRoles: (state) => state.roles,
     getPermissions: (state) => state.permissions,
-    getHrUser: (state) => state.hrUser
+    getHrUser: (state) => state.hrUser,
+    getTypeUser: (state) => state.typeUser
   },
 
   actions: {
@@ -58,6 +60,10 @@ export const useUserStore = defineStore('user', {
     setHrUser(hrUser) {
       this.hrUser = hrUser
       storage.set(constant.hrUser, hrUser)
+    },
+    setTypeUser(typeUser) {
+      this.typeUser = typeUser
+      storage.set('typeUser', typeUser)
     },
 
     // 登录
@@ -96,6 +102,7 @@ export const useUserStore = defineStore('user', {
       this.setId(userid)
       this.setName(username)
       this.setAvatar(avatar)
+      this.setTypeUser(user.typeUser || 'normal')
       
       // Call getEmp and block login if no HR user
       if (username) {

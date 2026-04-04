@@ -543,8 +543,10 @@ export default {
       statuses: [
         { label: 'الكل', value: null },
         { label: 'قيد الانتظار', value: '0' },
-        { label: 'موافق عليه', value: '1' },
-        { label: 'مرفوض', value: '2' }
+        { label: 'موافق من المشرف', value: '1' },
+        { label: 'مرفوض من المشرف', value: '2' },
+        { label: 'موافق نهائياً', value: '3' },
+        { label: 'مرفوض من HR', value: '4' }
       ],
       statusIndex: 0,
       
@@ -1201,8 +1203,10 @@ export default {
     getStatusText(status) {
       switch (String(status)) {
         case '0': return 'قيد الانتظار'
-        case '1': return 'موافق عليه'
-        case '2': return 'مرفوض'
+        case '1': return 'موافق من المشرف'
+        case '2': return 'مرفوض من المشرف'
+        case '3': return 'موافق نهائياً'
+        case '4': return 'مرفوض من HR'
         default: return 'غير محدد'
       }
     }

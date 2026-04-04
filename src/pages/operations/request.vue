@@ -551,8 +551,10 @@ export default {
       statuses: [
         { label: 'الكل', value: null },
         { label: 'قيد الانتظار', value: '0' },
-        { label: 'موافق عليه', value: '1' },
-        { label: 'مرفوض', value: '2' }
+        { label: 'موافق من المشرف', value: '1' },
+        { label: 'مرفوض من المشرف', value: '2' },
+        { label: 'موافق نهائياً', value: '3' },
+        { label: 'مرفوض من HR', value: '4' }
       ],
       statusIndex: 0,
       
