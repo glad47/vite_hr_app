@@ -102,7 +102,7 @@
             <view class="icon-wrapper icon-orange">
               <uni-icons type="hand-thumbsup-filled" size="32" color="#ea580c"></uni-icons>
             </view>
-            <text class="operation-text">المعاملات</text>
+            <text class="operation-text">طلباتي</text>
           </view>
         </uni-grid-item>
 
@@ -196,7 +196,7 @@ export default {
         { name: 'deficit', label: 'العجوزات', route: '/pages/operations/deficit' }
       ],
       supervisor: [
-        { name: 'approval', label: 'المعاملات', route: '/pages/supervisor/approval' },
+        { name: 'approval', label: 'طلباتي', route: '/pages/supervisor/approval' },
         { name: 'employees', label: 'المرؤوسين', route: '/pages/supervisor/employees' },
         { name: 'shifts', label: 'الشفتات', route: '/pages/supervisor/shifts' },
         { name: 'punchout', label: 'تسجيل الانصراف', route: '/pages/supervisor/punchout' }

@@ -139,7 +139,7 @@
     {
       "path": "pages/supervisor/approval",
       "style": {
-        "navigationBarTitleText": "جميع الطلبات",
+        "navigationBarTitleText": "طلباتي",
         "enablePullDownRefresh": true
       }
     },

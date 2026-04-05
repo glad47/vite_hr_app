@@ -1,315 +1,322 @@
 <template>
-  <view class="approval-container">
-    <!-- Header -->
-    <view class="page-header">
-      <text class="page-title">مركز الموافقات</text>
-      <text class="page-subtitle">الطلبات المعلقة بانتظار موافقتك</text>
+  <view class="requests-page">
+    <view class="header">
+      <view class="header-content">
+        <text class="header-title">طلباتي</text>
+        <text class="header-subtitle">جميع طلباتي المقدمة</text>
+      </view>
     </view>
 
-    <scroll-view class="main-scroll" scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing" @refresherrefresh="onRefresh">
-      
-      <!-- Pending Counts -->
-      <view class="counts-grid">
-        <view class="count-item" v-for="(count, key) in pendingCounts" :key="key" @click="filterByType(key)">
-          <text class="count-number">{{ count }}</text>
-          <text class="count-label">{{ typeLabels[key] }}</text>
+    <view class="content">
+      <!-- Status Filter -->
+      <view class="status-tabs">
+        <view class="stab" :class="{ active: statusFilter === '0' }" @click="setStatus('0')">
+          <text class="stab-text">قيد الانتظار</text>
+        </view>
+        <view class="stab" :class="{ active: statusFilter === '3' }" @click="setStatus('3')">
+          <text class="stab-text">مقبول</text>
+        </view>
+        <view class="stab" :class="{ active: statusFilter === 'rejected' }" @click="setStatus('rejected')">
+          <text class="stab-text">مرفوض</text>
         </view>
       </view>
 
-      <!-- Filter Tabs -->
-      <view class="filter-tabs">
-        <view class="tab-item" :class="{ active: filterType === '' }" @click="filterByType('')">
-          <text>الكل ({{ allItems.length }})</text>
+      <!-- Type Filter -->
+      <scroll-view scroll-x class="filter-scroll">
+        <view class="filter-tabs">
+          <view class="tab" :class="{ active: filterType === '' }" @click="filterByType('')">
+            <text class="tab-text">الكل ({{ statusFilteredItems.length }})</text>
+          </view>
+          <view class="tab" :class="{ active: filterType === key }" v-for="(label, key) in typeLabels" :key="key" @click="filterByType(key)">
+            <text class="tab-text">{{ label }}</text>
+          </view>
         </view>
-        <view class="tab-item" :class="{ active: filterType === key }" v-for="(label, key) in typeLabels" :key="key" @click="filterByType(key)">
-          <text>{{ label }}</text>
-        </view>
-      </view>
-
-      <!-- Batch Actions -->
-      <view class="batch-actions" v-if="selectedIds.length > 0">
-        <text class="batch-count">{{ selectedIds.length }} محدد</text>
-        <button class="btn-batch-approve" @click="batchApprove">موافقة الكل</button>
-        <button class="btn-batch-reject" @click="batchReject">رفض الكل</button>
-      </view>
+      </scroll-view>
 
       <!-- Loading -->
-      <view v-if="loading && filteredItems.length === 0" class="state-box">
-        <view class="spinner"></view>
+      <view v-if="loading" class="state-box">
         <text class="state-text">جاري التحميل...</text>
       </view>
 
       <!-- Empty -->
-      <view v-else-if="!loading && filteredItems.length === 0" class="state-box">
-        <text class="state-icon">✅</text>
-        <text class="state-text">لا توجد طلبات معلقة</text>
+      <view v-else-if="filteredItems.length === 0" class="state-box">
+        <uni-icons type="info" size="50" color="#d1d5db"></uni-icons>
+        <text class="state-text">لا توجد طلبات</text>
       </view>
 
-      <!-- Items List -->
-      <view v-else class="list-content">
-        <view class="list-item" v-for="item in filteredItems" :key="item._type + '-' + item.id">
-          <!-- Checkbox -->
-          <view class="item-checkbox" @click="toggleSelect(item)">
-            <view class="checkbox" :class="{ checked: isSelected(item) }">
-              <text v-if="isSelected(item)">✓</text>
+      <!-- Items -->
+      <view v-else class="items-list">
+        <view class="item-card" v-for="item in filteredItems" :key="item._type + '-' + item.id">
+          <view class="item-top">
+            <view class="type-badge" :class="'badge-' + item._type">
+              <text class="badge-text">{{ typeLabels[item._type] }}</text>
+            </view>
+            <view class="status-badge" :class="'status-' + item.status">
+              <text class="status-text">{{ statusLabel(item.status) }}</text>
             </view>
           </view>
 
-          <view class="item-content">
-            <!-- Header -->
-            <view class="item-header">
-              <view class="type-badge" :class="'type-' + item._type">
-                <text>{{ typeLabels[item._type] }}</text>
+          <view class="item-body">
+            <template v-if="item._type === 'requests'">
+              <view class="detail-row">
+                <text class="detail-label">النوع</text>
+                <text class="detail-value">{{ requestTypeLabel(item.type) }}</text>
               </view>
-              <text class="item-name">{{ item.empName }}</text>
-            </view>
+              <view class="detail-row">
+                <text class="detail-label">التاريخ</text>
+                <text class="detail-value">{{ item.requestDate }}</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-label">الوقت</text>
+                <text class="detail-value">{{ item.startTime }} → {{ item.endTime }}</text>
+              </view>
+              <view class="detail-row" v-if="item.reason">
+                <text class="detail-label">السبب</text>
+                <text class="detail-value">{{ item.reason }}</text>
+              </view>
+            </template>
+            <template v-else-if="item._type === 'additions' || item._type === 'dedections' || item._type === 'dedectionWs'">
+              <view class="detail-row">
+                <text class="detail-label">المبلغ</text>
+                <text class="detail-value">{{ item.amount }} ر.س</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-label">الفترة</text>
+                <text class="detail-value">{{ item.dueYear }}/{{ item.dueMonth }}</text>
+              </view>
+              <view class="detail-row" v-if="item.note">
+                <text class="detail-label">ملاحظات</text>
+                <text class="detail-value">{{ item.note }}</text>
+              </view>
+            </template>
+            <template v-else-if="item._type === 'advances'">
+              <view class="detail-row">
+                <text class="detail-label">المبلغ</text>
+                <text class="detail-value">{{ item.amount }} ر.س</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-label">الأقساط</text>
+                <text class="detail-value">{{ item.months }} شهر</text>
+              </view>
+            </template>
+            <template v-else-if="item._type === 'punches'">
+              <view class="detail-row">
+                <text class="detail-label">الوقت</text>
+                <text class="detail-value">{{ item.startTime }} → {{ item.endTime }}</text>
+              </view>
+            </template>
+            <template v-else-if="item._type === 'leaves'">
+              <view class="detail-row">
+                <text class="detail-label">النوع</text>
+                <text class="detail-value">{{ leaveTypeLabel(item.leaveType) }}</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-label">من</text>
+                <text class="detail-value">{{ item.startDate }}</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-label">إلى</text>
+                <text class="detail-value">{{ item.endDate }}</text>
+              </view>
+            </template>
+          </view>
 
-            <!-- Details -->
-            <view class="item-details">
-              <template v-if="item._type === 'requests'">
-                <text class="detail-text">{{ requestTypeLabel(item.type) }} - {{ formatDate(item.requestDate) }}</text>
-                <text class="detail-text">{{ item.startTime }} → {{ item.endTime }}</text>
-              </template>
-              <template v-else-if="item._type === 'additions' || item._type === 'dedections'">
-                <text class="detail-text">{{ item.amount }} ر.س | {{ item.dueYear }}/{{ item.dueMonth }}</text>
-                <text class="detail-text" v-if="item.note">{{ item.note }}</text>
-              </template>
-              <template v-else-if="item._type === 'advances'">
-                <text class="detail-text">{{ item.amount }} ر.س - {{ item.months }} شهر</text>
-                <text class="detail-text" v-if="item.reason">{{ item.reason }}</text>
-              </template>
-              <template v-else-if="item._type === 'punches'">
-                <text class="detail-text">{{ formatDate(item.startTime) }} → {{ formatDate(item.endTime) }}</text>
-                <text class="detail-text" v-if="item.reason">{{ item.reason }}</text>
-              </template>
-              <text class="detail-date">{{ formatDate(item.createTime) }}</text>
-            </view>
-
-            <!-- Actions -->
-            <view class="item-actions">
-              <button class="btn-approve" @click="approveItem(item)">موافقة</button>
-              <button class="btn-reject" @click="rejectItem(item)">رفض</button>
-            </view>
+          <view class="item-footer">
+            <text class="footer-date">{{ item.createTime }}</text>
+            <button v-if="item.status === '0'" class="btn-delete" @click="deleteItem(item)">
+              <uni-icons type="trash" size="16" color="#dc2626"></uni-icons>
+              <text class="btn-delete-text">حذف</text>
+            </button>
           </view>
         </view>
       </view>
-    </scroll-view>
+    </view>
   </view>
 </template>
 
 <script>
-import {
-  getSupervisorPendingItems,
-  getSupervisorPendingCounts,
-  supervisorApprove,
-  supervisorReject,
-  supervisorBatchApprove,
-  supervisorBatchReject
-} from '@/api/api/approval'
+import request from '@/utils/request'
+import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue'
 
 export default {
+  name: 'MyRequests',
+  components: { uniIcons },
   data() {
     return {
       loading: false,
-      isRefreshing: false,
-      supervisorId: null,
       allItems: [],
+      statusFilteredItems: [],
       filteredItems: [],
-      selectedIds: [],
       filterType: '',
-      pendingCounts: { requests: 0, additions: 0, dedections: 0, advances: 0, punches: 0 },
+      statusFilter: '0', // Default: pending
       typeLabels: {
         requests: 'الاستئذان',
+        leaves: 'الإجازات',
         additions: 'الإضافات',
         dedections: 'الخصومات',
+        dedectionWs: 'العجوزات',
         advances: 'السلف',
         punches: 'تغيير البصمة'
       }
     }
   },
   computed: {
-    userInfo() { return this.$store.state.user.hrUser }
+    empId() {
+      return this.$store?.state?.user?.hrUser?.id || ''
+    }
   },
   onShow() {
-    this.initUser()
-    if (this.supervisorId) this.loadData()
+    if (this.empId) this.loadData()
+  },
+  watch: {
+    empId(val) { if (val) this.loadData() }
+  },
+  onPullDownRefresh() {
+    this.loadData().then(() => uni.stopPullDownRefresh())
   },
   methods: {
-    initUser() {
-      const user = this.userInfo
-      if (user) {
-        this.supervisorId = user.id
-      }
-    },
-
     async loadData() {
-      if (!this.supervisorId) return
+      if (!this.empId) return
       this.loading = true
       try {
-        const [itemsRes, countsRes] = await Promise.all([
-          getSupervisorPendingItems(this.supervisorId),
-          getSupervisorPendingCounts(this.supervisorId)
-        ])
-        this.pendingCounts = countsRes.data || {}
+        const res = await request({ url: '/api/my-requests/' + this.empId, method: 'get' })
+        const data = res.data || {}
         this.allItems = []
-        const data = itemsRes.data || {}
-        for (const type of Object.keys(data)) {
-          (data[type] || []).forEach(item => {
-            item._type = type
-            this.allItems.push(item)
-          })
-        }
+        const types = ['requests', 'leaves', 'additions', 'dedections', 'dedectionWs', 'advances', 'punches']
+        types.forEach(type => {
+          (data[type] || []).forEach(r => { r._type = type; this.allItems.push(r) })
+        })
         this.allItems.sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
         this.applyFilter()
       } catch (e) {
-        uni.showToast({ title: 'فشل التحميل', icon: 'none' })
+        console.error('Load error:', e)
       } finally {
         this.loading = false
-        this.isRefreshing = false
       }
     },
 
-    async onRefresh() { this.isRefreshing = true; await this.loadData() },
+    setStatus(s) {
+      this.statusFilter = s
+      this.applyFilter()
+    },
+
+    filterByType(type) {
+      this.filterType = type
+      this.applyFilter()
+    },
 
     applyFilter() {
+      // First filter by status
+      if (this.statusFilter === 'rejected') {
+        this.statusFilteredItems = this.allItems.filter(i => i.status === '2' || i.status === '4')
+      } else {
+        this.statusFilteredItems = this.allItems.filter(i => i.status === this.statusFilter)
+      }
+      // Then filter by type
       this.filteredItems = this.filterType
-        ? this.allItems.filter(i => i._type === this.filterType)
-        : [...this.allItems]
+        ? this.statusFilteredItems.filter(i => i._type === this.filterType)
+        : [...this.statusFilteredItems]
     },
 
-    filterByType(type) { this.filterType = type; this.applyFilter() },
-
-    toggleSelect(item) {
-      const key = item._type + '-' + item.id
-      const idx = this.selectedIds.indexOf(key)
-      if (idx >= 0) this.selectedIds.splice(idx, 1)
-      else this.selectedIds.push(key)
+    statusLabel(s) {
+      return { '0': 'قيد الانتظار', '1': 'بانتظار HR', '2': 'مرفوض', '3': 'مقبول', '4': 'مرفوض من HR' }[s] || s
+    },
+    requestTypeLabel(t) {
+      return { '0': 'خروج وعودة', '1': 'خروج مبكر', '2': 'تأخير' }[t] || t
+    },
+    leaveTypeLabel(t) {
+      return { '0': 'سنوية', '1': 'مرضية', '2': 'رسمية', '3': 'خاصة', '4': 'اضطرارية' }[t] || t
     },
 
-    isSelected(item) { return this.selectedIds.includes(item._type + '-' + item.id) },
-
-    requestTypeLabel(type) {
-      return { '0': 'خروج وعودة', '1': 'خروج مبكر', '2': 'تأخير' }[type] || type
-    },
-
-    formatDate(d) {
-      if (!d) return '-'
-      const date = new Date(d)
-      if (isNaN(date.getTime())) return d
-      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
-    },
-
-    async approveItem(item) {
+    deleteItem(item) {
       uni.showModal({
-        title: 'تأكيد الموافقة',
-        content: 'هل تريد الموافقة على هذا الطلب؟',
+        title: 'حذف الطلب',
+        content: 'هل أنت متأكد من حذف هذا الطلب؟',
         success: async (res) => {
           if (!res.confirm) return
-          const typeMap = { requests: 'request', additions: 'addition', dedections: 'dedection', advances: 'advance', punches: 'punch' }
           try {
-            await supervisorApprove({ type: typeMap[item._type], id: item.id, supervisorId: this.supervisorId })
-            uni.showToast({ title: 'تمت الموافقة', icon: 'success' })
-            this.loadData()
-          } catch (e) { uni.showToast({ title: 'فشلت العملية', icon: 'none' }) }
+            const urlMap = {
+              requests: '/api/request/',
+              leaves: '/api/leave/',
+              additions: '/api/addition/',
+              dedections: '/api/dedection/',
+              dedectionWs: '/api/dedectionW/',
+              advances: '/api/advance/',
+              punches: '/api/punch/'
+            }
+            const url = urlMap[item._type]
+            if (url) {
+              await request({ url: url + item.id, method: 'delete' })
+            }
+            const idx = this.allItems.findIndex(i => i._type === item._type && i.id === item.id)
+            if (idx > -1) this.allItems.splice(idx, 1)
+            this.applyFilter()
+            uni.showToast({ title: 'تم الحذف', icon: 'success' })
+          } catch (e) {
+            uni.showToast({ title: 'فشل الحذف', icon: 'none' })
+          }
         }
       })
-    },
-
-    rejectItem(item) {
-      uni.showModal({
-        title: 'تأكيد الرفض',
-        content: 'هل تريد رفض هذا الطلب؟',
-        editable: false,
-        success: async (res) => {
-          if (!res.confirm) return
-          const typeMap = { requests: 'request', additions: 'addition', dedections: 'dedection', advances: 'advance', punches: 'punch' }
-          try {
-            await supervisorReject({ type: typeMap[item._type], id: item.id, supervisorId: this.supervisorId })
-            uni.showToast({ title: 'تم الرفض', icon: 'success' })
-            this.loadData()
-          } catch (e) { uni.showToast({ title: 'فشلت العملية', icon: 'none' }) }
-        }
-      })
-    },
-
-    async batchApprove() {
-      const typeMap = { requests: 'request', additions: 'addition', dedections: 'dedection', advances: 'advance', punches: 'punch' }
-      const items = this.selectedIds.map(key => {
-        const [type, id] = key.split('-')
-        return { type: typeMap[type], id: parseInt(id) }
-      })
-      try {
-        await supervisorBatchApprove({ items, approverId: this.supervisorId })
-        uni.showToast({ title: 'تمت الموافقة', icon: 'success' })
-        this.selectedIds = []
-        this.loadData()
-      } catch (e) { uni.showToast({ title: 'فشلت العملية', icon: 'none' }) }
-    },
-
-    async batchReject() {
-      const typeMap = { requests: 'request', additions: 'addition', dedections: 'dedection', advances: 'advance', punches: 'punch' }
-      const items = this.selectedIds.map(key => {
-        const [type, id] = key.split('-')
-        return { type: typeMap[type], id: parseInt(id) }
-      })
-      try {
-        await supervisorBatchReject({ items, approverId: this.supervisorId })
-        uni.showToast({ title: 'تم الرفض', icon: 'success' })
-        this.selectedIds = []
-        this.loadData()
-      } catch (e) { uni.showToast({ title: 'فشلت العملية', icon: 'none' }) }
     }
   }
 }
 </script>
 
-<style scoped lang="scss">
-.approval-container { display: flex; flex-direction: column; height: 100vh; background: #f8fafc; }
-.page-header { padding: 40rpx 20rpx 24rpx; background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); color: #fff; }
-.page-title { font-size: 36rpx; font-weight: 700; display: block; margin-bottom: 8rpx; }
-.page-subtitle { font-size: 24rpx; opacity: 0.9; display: block; }
-.main-scroll { flex: 1; height: 0; }
+<style scoped>
+.requests-page { min-height: 100vh; background: linear-gradient(135deg, #76c4cc 0%, #4a9da6 100%); direction: rtl; }
+.header { padding: 60rpx 30rpx 30rpx; }
+.header-content { display: flex; flex-direction: column; gap: 8rpx; }
+.header-title { font-size: 44rpx; font-weight: 800; color: #fff; }
+.header-subtitle { font-size: 26rpx; color: rgba(255,255,255,0.85); }
+.content { background: #f8fafc; border-radius: 40rpx 40rpx 0 0; padding: 24rpx; min-height: calc(100vh - 200rpx); }
 
-.counts-grid { display: flex; flex-wrap: wrap; padding: 16rpx; gap: 12rpx; }
-.count-item { flex: 1; min-width: 30%; background: #fff; border-radius: 12rpx; padding: 16rpx; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06); }
-.count-number { font-size: 36rpx; font-weight: 700; color: #1a365d; display: block; }
-.count-label { font-size: 22rpx; color: #64748b; display: block; margin-top: 4rpx; }
+/* Status Tabs */
+.status-tabs { display: flex; gap: 12rpx; margin-bottom: 20rpx; }
+.stab { flex: 1; text-align: center; padding: 18rpx; border-radius: 16rpx; background: #fff; border: 2rpx solid #e2e8f0; }
+.stab.active { border-color: #4a9da6; background: #4a9da6; }
+.stab.active .stab-text { color: #fff; }
+.stab-text { font-size: 26rpx; font-weight: 600; color: #475569; }
 
-.filter-tabs { display: flex; padding: 12rpx 16rpx; overflow-x: auto; white-space: nowrap; gap: 8rpx; }
-.tab-item { padding: 12rpx 20rpx; background: #fff; border-radius: 20rpx; font-size: 24rpx; color: #64748b; border: 1rpx solid #e2e8f0; flex-shrink: 0; }
-.tab-item.active { background: #1a365d; color: #fff; border-color: #1a365d; }
+/* Type Filter */
+.filter-scroll { margin-bottom: 20rpx; }
+.filter-tabs { display: flex; gap: 12rpx; padding: 4rpx 0; }
+.tab { padding: 14rpx 24rpx; border-radius: 50rpx; background: #fff; border: 2rpx solid #e2e8f0; white-space: nowrap; flex-shrink: 0; }
+.tab.active { background: #4a9da6; border-color: #4a9da6; }
+.tab.active .tab-text { color: #fff; }
+.tab-text { font-size: 24rpx; color: #475569; font-weight: 600; }
 
-.batch-actions { display: flex; align-items: center; gap: 12rpx; padding: 12rpx 20rpx; margin: 8rpx 16rpx; background: #eff6ff; border-radius: 12rpx; }
-.batch-count { font-size: 26rpx; color: #1e40af; font-weight: 600; flex: 1; }
-.btn-batch-approve, .btn-batch-reject { padding: 10rpx 20rpx; border-radius: 8rpx; font-size: 24rpx; font-weight: 600; border: none; }
-.btn-batch-approve { background: #16a34a; color: #fff; }
-.btn-batch-reject { background: #dc2626; color: #fff; }
+.state-box { display: flex; flex-direction: column; align-items: center; padding: 100rpx 0; gap: 16rpx; }
+.state-text { font-size: 28rpx; color: #94a3b8; }
 
-.state-box { display: flex; flex-direction: column; align-items: center; padding: 100rpx; }
-.spinner { width: 60rpx; height: 60rpx; border: 4rpx solid #e2e8f0; border-top-color: #1a365d; border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.state-text { margin-top: 24rpx; font-size: 28rpx; color: #94a3b8; }
-.state-icon { font-size: 80rpx; }
+.items-list { display: flex; flex-direction: column; gap: 16rpx; }
+.item-card { background: #fff; border-radius: 20rpx; padding: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
 
-.list-content { padding: 16rpx; }
-.list-item { display: flex; gap: 12rpx; background: #fff; border-radius: 12rpx; margin-bottom: 16rpx; padding: 16rpx; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06); }
-.item-checkbox { display: flex; align-items: flex-start; padding-top: 4rpx; }
-.checkbox { width: 40rpx; height: 40rpx; border: 2rpx solid #cbd5e1; border-radius: 8rpx; display: flex; align-items: center; justify-content: center; font-size: 24rpx; color: #fff; }
-.checkbox.checked { background: #1a365d; border-color: #1a365d; }
-.item-content { flex: 1; }
-.item-header { display: flex; align-items: center; gap: 12rpx; margin-bottom: 8rpx; }
-.type-badge { padding: 4rpx 12rpx; border-radius: 6rpx; font-size: 20rpx; font-weight: 600; }
-.type-requests { background: #f3e8ff; color: #7c3aed; }
-.type-additions { background: #dcfce7; color: #16a34a; }
-.type-dedections { background: #fee2e2; color: #dc2626; }
-.type-advances { background: #dbeafe; color: #2563eb; }
-.type-punches { background: #ffedd5; color: #ea580c; }
-.item-name { font-size: 28rpx; font-weight: 600; color: #1e293b; }
-.item-details { margin-bottom: 12rpx; }
-.detail-text { font-size: 24rpx; color: #475569; display: block; margin-bottom: 4rpx; }
-.detail-date { font-size: 22rpx; color: #94a3b8; display: block; }
-.item-actions { display: flex; gap: 12rpx; }
-.btn-approve, .btn-reject { flex: 1; padding: 14rpx; border-radius: 8rpx; font-size: 24rpx; font-weight: 600; border: none; text-align: center; }
-.btn-approve { background: linear-gradient(135deg, #166534, #15803d); color: #fff; }
-.btn-reject { background: #fff; color: #dc2626; border: 2rpx solid #fecaca; }
+.item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
+.type-badge { padding: 6rpx 16rpx; border-radius: 8rpx; }
+.badge-text { font-size: 22rpx; font-weight: 600; color: #fff; }
+.badge-requests { background: #9333ea; }
+.badge-additions { background: #16a34a; }
+.badge-dedections { background: #dc2626; }
+.badge-dedectionWs { background: #e11d48; }
+.badge-advances { background: #2563eb; }
+.badge-punches { background: #ea580c; }
+.badge-leaves { background: #0891b2; }
+
+.status-badge { padding: 6rpx 16rpx; border-radius: 8rpx; }
+.status-text { font-size: 22rpx; font-weight: 600; }
+.status-0 { background: #fef3c7; } .status-0 .status-text { color: #d97706; }
+.status-1 { background: #dbeafe; } .status-1 .status-text { color: #2563eb; }
+.status-2 { background: #fee2e2; } .status-2 .status-text { color: #dc2626; }
+.status-3 { background: #dcfce7; } .status-3 .status-text { color: #16a34a; }
+.status-4 { background: #fee2e2; } .status-4 .status-text { color: #dc2626; }
+
+.item-body { display: flex; flex-direction: column; gap: 8rpx; }
+.detail-row { display: flex; gap: 12rpx; }
+.detail-label { font-size: 24rpx; color: #94a3b8; min-width: 100rpx; }
+.detail-value { font-size: 24rpx; color: #1e293b; font-weight: 500; flex: 1; }
+
+.item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid #f1f5f9; }
+.footer-date { font-size: 22rpx; color: #94a3b8; }
+.btn-delete { display: flex; align-items: center; gap: 6rpx; background: #fee2e2; padding: 10rpx 20rpx; border-radius: 10rpx; border: none; }
+.btn-delete-text { font-size: 22rpx; color: #dc2626; font-weight: 600; }
 </style>
