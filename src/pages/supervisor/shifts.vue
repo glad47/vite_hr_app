@@ -131,10 +131,6 @@
             <switch :checked="form.status === '1'" @change="form.status = $event.detail.value ? '1' : '0'" color="#1a365d" />
           </view>
 
-          <view class="info-note">
-            <uni-icons type="info-filled" size="16" color="#1e40af"></uni-icons>
-            <text>الشيفت المنشأ سيكون مؤقتاً ومرتبطاً بقسمك تلقائياً</text>
-          </view>
         </scroll-view>
         <view class="dialog-footer">
           <button class="btn-cancel" @click="closeDialog">إلغاء</button>
@@ -260,7 +256,8 @@ export default {
           ...this.form,
           weekendDays: this.selectedDays.join(','),
           deptId: this.userDeptId,
-          shiftType: '1' // Always temporary from app
+          areaId: this.userInfo.areaId,
+          shiftType: '0' // Always temporary from app
         }
         await addShift(data)
         uni.showToast({ title: 'تم إنشاء الشيفت', icon: 'success' })

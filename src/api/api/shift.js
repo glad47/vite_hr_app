@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询قوالب الشيفتات列表
 export function listShift(query) {
   return request({
-    url: '/api/shift/list',
+    url: '/api/shift/listWithDept',
     method: 'get',
     params: query
   })
@@ -20,7 +20,7 @@ export function getShift(id) {
 // 新增قوالب الشيفتات
 export function addShift(data) {
   return request({
-    url: '/api/shift',
+    url: '/api/shift/addFromApp',
     method: 'post',
     data: data
   })

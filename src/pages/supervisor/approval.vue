@@ -59,6 +59,10 @@
           <view class="item-body">
             <template v-if="item._type === 'requests'">
               <view class="detail-row">
+                <text class="detail-label">الاسم</text>
+                <text class="detail-value">{{ requestTypeLabel(item.empName) }}</text>
+              </view>
+              <view class="detail-row">
                 <text class="detail-label">النوع</text>
                 <text class="detail-value">{{ requestTypeLabel(item.type) }}</text>
               </view>
@@ -77,6 +81,10 @@
             </template>
             <template v-else-if="item._type === 'additions' || item._type === 'dedections' || item._type === 'dedectionWs'">
               <view class="detail-row">
+                <text class="detail-label">الاسم</text>
+                <text class="detail-value">{{ requestTypeLabel(item.empName) }}</text>
+              </view>
+              <view class="detail-row">
                 <text class="detail-label">المبلغ</text>
                 <text class="detail-value">{{ item.amount }} ر.س</text>
               </view>
@@ -91,6 +99,10 @@
             </template>
             <template v-else-if="item._type === 'advances'">
               <view class="detail-row">
+                <text class="detail-label">الاسم</text>
+                <text class="detail-value">{{ requestTypeLabel(item.empName) }}</text>
+              </view>
+              <view class="detail-row">
                 <text class="detail-label">المبلغ</text>
                 <text class="detail-value">{{ item.amount }} ر.س</text>
               </view>
@@ -101,11 +113,19 @@
             </template>
             <template v-else-if="item._type === 'punches'">
               <view class="detail-row">
+                <text class="detail-label">الاسم</text>
+                <text class="detail-value">{{ requestTypeLabel(item.empName) }}</text>
+              </view>
+              <view class="detail-row">
                 <text class="detail-label">الوقت</text>
                 <text class="detail-value">{{ item.startTime }} → {{ item.endTime }}</text>
               </view>
             </template>
             <template v-else-if="item._type === 'leaves'">
+              <view class="detail-row">
+                <text class="detail-label">الاسم</text>
+                <text class="detail-value">{{ requestTypeLabel(item.empName) }}</text>
+              </view>
               <view class="detail-row">
                 <text class="detail-label">النوع</text>
                 <text class="detail-value">{{ leaveTypeLabel(item.leaveType) }}</text>

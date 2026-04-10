@@ -144,7 +144,7 @@
     </view>
 
     <!-- إحصائيات سريعة - Quick Stats -->
-    <view class="stats-section">
+    <!-- <view class="stats-section">
       <view class="stat-card">
         <view class="stat-icon">
           <uni-icons type="compose" size="24" color="#2563eb"></uni-icons>
@@ -163,7 +163,7 @@
           <text class="stat-label">طلبات معلقة</text>
         </view>
       </view>
-    </view>
+    </view> -->
   </view>
 </template>
 
